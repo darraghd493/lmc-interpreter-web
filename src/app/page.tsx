@@ -27,13 +27,13 @@ in_b DAT
   // Settings state
   const [settings, setSettings] = useState<boolean>(false);
 
-  const [comments, setComments] = useState<boolean>(true);
-  const [commentsSequence, setCommentsSequence] = useState<string>("//");
-  const [splitLines, setSplitLines] = useState<boolean>(true);
-  const [splitLinesSequence, setSplitLinesSequence] = useState<string>(";");
-  const [memorySize, setMemorySize] = useState<number>(32747);
-  const [dump, setDump] = useState<boolean>(false);
-  const [stepInterval, setStepInterval] = useState<number>(1);
+  const [comments, setComments] = useState<boolean>(localStorage.getItem("comments") === "true" || localStorage.getItem("comments") === null);
+  const [commentsSequence, setCommentsSequence] = useState<string>(localStorage.getItem("commentsSequence") || "//");
+  const [splitLines, setSplitLines] = useState<boolean>(localStorage.getItem("splitLines") === "true" || localStorage.getItem("splitLines") === null);
+  const [splitLinesSequence, setSplitLinesSequence] = useState<string>(localStorage.getItem("splitLinesSequence") || ";");
+  const [memorySize, setMemorySize] = useState<number>(parseInt(localStorage.getItem("memorySize") || "32747", 10));
+  const [dump, setDump] = useState<boolean>(localStorage.getItem("dump") === "true" || localStorage.getItem("dump") === null);
+  const [stepInterval, setStepInterval] = useState<number>(parseInt(localStorage.getItem("stepInterval") || "1", 10));
 
   // Handle interpreter
   useEffect(() => {
@@ -279,6 +279,45 @@ in_b DAT
                   value={stepInterval}
                   onChange={(e) => setStepInterval(parseInt(e.target.value, 10))}
                 />
+                <h3>
+                  Save
+                </h3>
+                <button
+                  className="w-full bg-gray-500 dark:bg-gray-600 px-3 py-2.5 text-white z-50 cursor-pointer"
+                  onClick={() => {
+                    localStorage.setItem("comments", comments.toString());
+                    localStorage.setItem("commentsSequence", commentsSequence);
+                    localStorage.setItem("splitLines", splitLines.toString());
+                    localStorage.setItem("splitLinesSequence", splitLinesSequence);
+                    localStorage.setItem("memorySize", memorySize.toString());
+                    localStorage.setItem("dump", dump.toString());
+                    localStorage.setItem("stepInterval", stepInterval.toString());
+                  }}
+                >
+                  Save to Local Storage
+                </button>
+                <button
+                  className="w-full bg-gray-500 dark:bg-gray-600 px-3 py-2.5 text-white z-50 cursor-pointer"
+                  onClick={() => {
+                    setComments(localStorage.getItem("comments") === "true" || localStorage.getItem("comments") === null);
+                    setCommentsSequence(localStorage.getItem("commentsSequence") || "//");
+                    setSplitLines(localStorage.getItem("splitLines") === "true" || localStorage.getItem("splitLines") === null);
+                    setSplitLinesSequence(localStorage.getItem("splitLinesSequence") || ";");
+                    setMemorySize(parseInt(localStorage.getItem("memorySize") || "32747", 10));
+                    setDump(localStorage.getItem("dump") === "true" || localStorage.getItem("dump") === null);
+                    setStepInterval(parseInt(localStorage.getItem("stepInterval") || "1", 10));
+                  }}
+                >
+                  Reset to Local Storage
+                </button>
+                <button
+                  className="w-full bg-gray-500 dark:bg-gray-600 px-3 py-2.5 text-white z-50 cursor-pointer"
+                  onClick={() => {
+                    localStorage.clear();
+                  }}
+                >
+                  Delete Local Storage
+                </button>
               </div>
             </div>
           </div>
