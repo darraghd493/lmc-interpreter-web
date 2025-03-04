@@ -304,7 +304,7 @@ in_b DAT
                   value={stepInterval}
                   onChange={(e) => setStepInterval(parseInt(e.target.value, 10))}
                 />
-                <h3>
+                <h3 className="text-lg">
                   Save
                 </h3>
                 <button
