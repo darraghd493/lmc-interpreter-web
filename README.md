@@ -1,4 +1,4 @@
-# personal-site
+# lmc-interpreter-web
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app), serving as a minimal site for [lmc-interpreter](https://github.com/darraghd493/lmc-interpreter).
 
