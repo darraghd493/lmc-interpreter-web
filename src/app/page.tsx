@@ -36,6 +36,7 @@ in_b DAT
   const [stepInterval, setStepInterval] = useState<number>(1);
 
   const updateSettings = () => {
+    if (isInvalidSequences()) return;
     localStorage.setItem("comments", comments.toString());
     localStorage.setItem("commentsSequence", commentsSequence);
     localStorage.setItem("splitLines", splitLines.toString());
@@ -55,6 +56,9 @@ in_b DAT
     setDump(localStorage.getItem("dump") === "true" || false);
     setStepInterval(parseInt(localStorage.getItem("stepInterval") || "1", 10));
   }
+
+  const isInvalidSequences = () => comments && splitLines && (commentsSequence.startsWith(splitLinesSequence) || splitLinesSequence.startsWith(commentsSequence));
+  const isInvalidSettings = () => isInvalidSequences(); // Redundant, but for clarity - may be used for future settings
 
   useEffect(() => {
     loadSettings();
@@ -94,11 +98,11 @@ in_b DAT
     const parser = new Parser({
       program: script,
       comments: {
-        enabled: comments && commentsSequence.length > 0,
+        enabled: comments,
         sequence: commentsSequence,
       },
       splitLines: {
-        enabled: splitLines && splitLinesSequence.length > 0,
+        enabled: splitLines,
         sequence: splitLinesSequence,
       },
     });
@@ -152,22 +156,22 @@ in_b DAT
         </h1>
         <div className="flex flex-row items-center space-x-4">
           {
-            comments && commentsSequence.length > 0 ? (
+            comments && !isInvalidSequences() ? (
               <p>
                 <code>
                   {commentsSequence}
                 </code>
-                resembles a comment.
+                {" "}resembles a comment.
               </p>
             ) : null
           }
           {
-            splitLines && splitLinesSequence.length > 0 ? (
+            splitLines && !isInvalidSequences() ? (
               <p>
                 <code>
                   {splitLinesSequence}
                 </code>
-                resembles a split line.
+                {" "}resembles a split line.
               </p>
             ) : null
           }
@@ -242,6 +246,25 @@ in_b DAT
                 Settings
               </h2>
               <div className="flex flex-col p-4 pt-0 h-full gap-2 overflow-y-auto">
+                {
+                  isInvalidSettings() ? (
+                    <div>
+                      <p className="text-red-500 font-bold">
+                        Invalid settings!
+                      </p>
+                      {
+                        isInvalidSequences() ? (
+                          <p className="text-red-500">
+                            Pleaste note that neither sequence can start with each other <b>or</b> match. They will be disabled until a valid sequence is provided.
+                          </p>
+                        ) : null
+                      }
+                      <p className="text-red-500">
+                        Saving settings will not be possible until a valid sequence is provided.
+                      </p>
+                    </div>
+                  ) : null
+                }
                 <h3 className="text-lg">
                   Comments
                 </h3>
@@ -255,7 +278,7 @@ in_b DAT
                     <TextBox
                       text={commentsSequence}
                       maxLength={3}
-                      onChange={setCommentsSequence}
+                      onChange={(value) => setCommentsSequence(value.trim())}
                     />
                   ) : null
                 }
@@ -279,7 +302,7 @@ in_b DAT
                     <TextBox
                       text={splitLinesSequence}
                       maxLength={3}
-                      onChange={setSplitLinesSequence}
+                      onChange={(value) => setSplitLinesSequence(value.trim())}
                     />
                   ) : null
                 }
