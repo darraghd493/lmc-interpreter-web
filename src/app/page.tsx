@@ -5,6 +5,15 @@ import { TextBox } from "@/components/TextBox";
 import { Interpreter, Parser } from "lmc-interpreter";
 import { useEffect, useState } from "react";
 
+interface Notification {
+  title: string;
+  message: string;
+  actions: Array<{
+    label: string;
+    action: () => void;
+  }>;
+}
+
 // TODO: Implement configuration for the interpreter
 export default function Page() {
   // Interpreter state
@@ -63,6 +72,17 @@ in_b DAT
   useEffect(() => {
     loadSettings();
   }, []);
+  
+  // Notifications
+  const [notifications, setNotifications] = useState<Array<Notification>>([]);
+
+  const pushNotification = (notification: Notification) => {
+    setNotifications((prev) => [...prev, notification]);
+  }
+
+  const popNotification = () => {
+    setNotifications((prev) => prev.slice(1));
+  }
 
   // Handle interpreter
   useEffect(() => {
@@ -81,7 +101,17 @@ in_b DAT
             setLog((prev) => prev + `PC: ${interpreter.state.programCounter}, ACC: ${interpreter.state.accumulator}, IR: ${interpreter.state.instructionRegister}, AR: ${interpreter.state.addressRegister}\n`);
           }
         } catch (error) {
-          setOutput((prev) => prev + "------------------------" + error + "\n");
+          setOutput((prev) => prev + error + "\n");
+          pushNotification({
+            title: "Error",
+            message: "An error occurred while interpreting: " + error,
+            actions: [
+              {
+                label: "Okay",
+                action: () => popNotification(),
+              },
+            ],
+          });
           clearInterval(interval);
         }
       }, stepInterval || 1);
@@ -111,7 +141,17 @@ in_b DAT
     try {
       result = parser.parse();
     } catch (error) {
-      setOutput((prev) => prev + "------------------------" + error + "\n");
+      setOutput((prev) => prev + error + "\n");
+      pushNotification({
+        title: "Error",
+        message: "An error occurred while parsing: " + error,
+        actions: [
+          {
+            label: "Okay",
+            action: () => popNotification(),
+          },
+        ],
+      });
       return;
     }
 
@@ -119,9 +159,7 @@ in_b DAT
     const interpreter = new Interpreter({
       program: result.instructions,
       events: {
-        onInput: () => {
-          return parseInt(prompt("Enter a number: ") ?? "0", 10);
-        },
+        onInput: () => parseInt(prompt("Enter a number: ") ?? "0", 10),
         onOutput: (output) => {
           setOutput((prev) => prev + output + "\n");
         },
@@ -360,6 +398,36 @@ in_b DAT
                 >
                   Delete Local Storage
                 </button>
+              </div>
+            </div>
+          </div>
+        ) : null
+      }
+      {/* Notification modal */}
+      {
+        notifications.length > 0 ? (
+          <div className="flex justify-center items-center fixed w-screen h-screen bg-[rgba(0,0,0,0.2)] z-50">
+            <div className="flex flex-col w-[400px] bg-gray-400 dark:bg-gray-800 drop-shadow-2xl">
+              <h2 className="flex items-start justify-start text-2xl font-bold p-4 pb-0">
+                {notifications[0].title}
+              </h2>
+              <div className="flex flex-col p-4 pt-0 h-full gap-2 overflow-y-auto">
+                <p>
+                  {notifications[0].message}
+                </p>
+                <div className="flex flex-row gap-2">
+                  {
+                    notifications[0].actions.map((action, index) => (
+                      <button
+                        key={index}
+                        className="bg-gray-500 dark:bg-gray-600 px-3 py-2.5 text-white z-50 cursor-pointer"
+                        onClick={action.action}
+                      >
+                        {action.label}
+                      </button>
+                    ))
+                  }
+                </div>
               </div>
             </div>
           </div>
