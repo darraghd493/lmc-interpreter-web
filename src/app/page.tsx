@@ -225,11 +225,11 @@ in_b DAT
               }
             }}
           >
-            <div className="w-[400px] h-[600px] bg-gray-400 dark:bg-gray-800 drop-shadow-2xl">
+            <div className="flex flex-col w-[400px] h-[600px] bg-gray-400 dark:bg-gray-800 drop-shadow-2xl">
               <h2 className="text-2xl font-bold p-4 pb-0">
                 Settings
               </h2>
-              <div className="p-4 pt-0">
+              <div className="flex flex-col p-4 pt-0 h-full gap-2 overflow-y-auto">
                 <h3 className="text-lg">
                   Comments
                 </h3>
