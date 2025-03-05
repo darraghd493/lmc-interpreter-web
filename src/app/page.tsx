@@ -70,10 +70,15 @@ in_b DAT
       interpreter.initialise();
       
       const interval = setInterval(() => {
-        if (!interpreter.step()) {
+        try {
+          if (!interpreter.step()) {
+            clearInterval(interval);
+          } else if (dump) {
+            setLog((prev) => prev + `PC: ${interpreter.state.programCounter}, ACC: ${interpreter.state.accumulator}, IR: ${interpreter.state.instructionRegister}, AR: ${interpreter.state.addressRegister}\n`);
+          }
+        } catch (error) {
+          setOutput((prev) => prev + "------------------------" + error + "\n");
           clearInterval(interval);
-        } else if (dump) {
-          setLog((prev) => prev + `PC: ${interpreter.state.programCounter}, ACC: ${interpreter.state.accumulator}, IR: ${interpreter.state.instructionRegister}, AR: ${interpreter.state.addressRegister}\n`);
         }
       }, stepInterval || 1);
     }
@@ -97,7 +102,14 @@ in_b DAT
         sequence: splitLinesSequence,
       },
     });
-    const result = parser.parse();
+    
+    let result;
+    try {
+      result = parser.parse();
+    } catch (error) {
+      setOutput((prev) => prev + "------------------------" + error + "\n");
+      return;
+    }
 
     // Interpret the script
     const interpreter = new Interpreter({
